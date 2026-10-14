@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebCraft Agency - Platform Jasa Pembuatan Website & Client Lifecycle</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#1e1b4b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.07); }
+        .tab-btn.active { background: #4f46e5; color: #ffffff; box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.39); }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-40 border-b border-slate-800 bg-slate-900/90 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 p-0.5 shadow-lg shadow-indigo-500/20">
+                    <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                        <i class="fa-solid fa-code text-indigo-400 text-lg"></i>
+                    </div>
+                </div>
+                <div>
+                    <span class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-300 bg-clip-text text-transparent">
+                        WebCraft Agency
+                    </span>
+                    <span class="hidden sm:inline-block text-[10px] uppercase font-bold tracking-widest text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full ml-2 border border-indigo-500/20">
+                        Platform v1.0
+                    </span>
+                </div>
+            </div>
+
+            <!-- Role Selector & Quick Actions -->
+            <div class="flex items-center gap-3">
+                <div class="hidden md:flex items-center text-xs bg-slate-800/80 rounded-xl p-1 border border-slate-700/60">
+                    <button onclick="setRole('client')" id="role-client-btn" class="px-3 py-1.5 rounded-lg font-medium transition text-white bg-indigo-600 shadow">
+                        <i class="fa-solid fa-user text-xs mr-1"></i> Portal Klien
+                    </button>
+                    <button onclick="setRole('admin')" id="role-admin-btn" class="px-3 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-shield-halved text-xs mr-1"></i> Admin / PM View
+                    </button>
+                </div>
+                <button onclick="resetDataDemo()" title="Reset data demo ke awal" class="text-xs text-slate-400 hover:text-amber-400 bg-slate-800/70 hover:bg-slate-800 border border-slate-700 px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-left"></i> <span class="hidden sm:inline">Reset Demo</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="border-t border-slate-800/80 bg-slate-900/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 overflow-x-auto py-2 text-xs font-semibold">
+                <button onclick="switchTab('katalog')" id="tab-katalog" class="tab-btn active px-3.5 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap transition">
+                    <i class="fa-solid fa-layer-group"></i> Katalog & Kalkulator
+                </button>
+                <button onclick="switchTab('order')" id="tab-order" class="tab-btn px-3.5 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                    <i class="fa-solid fa-file-signature"></i> Form Order & Brief
+                </button>
+                <button onclick="switchTab('tracker')" id="tab-tracker" class="tab-btn px-3.5 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                    <i class="fa-solid fa-bars-progress"></i> Milestone Tracker
+                    <span id="badge-progress" class="bg-indigo-500/20 text-indigo-300 text-[10px] px-1.5 py-0.2 rounded-full border border-indigo-500/30">75%</span>
+                </button>
+                <button onclick="switchTab('billing')" id="tab-billing" class="tab-btn px-3.5 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                    <i class="fa-solid fa-credit-card"></i> Billing & Termin
+                    <span id="badge-invoice-count" class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.2 rounded-full border border-amber-500/30">1 Pending</span>
+                </button>
+                <button onclick="switchTab('revisi')" id="tab-revisi" class="tab-btn px-3.5 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                    <i class="fa-solid fa-ticket-simple"></i> Tiket Revisi
+                    <span id="badge-revisi-quota" class="bg-emerald-500/20 text-emerald-300 text-[10px] px-1.5 py-0.2 rounded-full border border-emerald-500/30">2/3 Sisa</span>
+                </button>
+                <button onclick="switchTab('vault')" id="tab-vault" class="tab-btn px-3.5 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                    <i class="fa-solid fa-vault"></i> Credential Vault & BAST
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ========================================== -->
+        <!-- TAB 1: KATALOG & KALKULATOR HARGA          -->
+        <!-- ========================================== -->
+        <section id="content-katalog" class="space-y-10">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-900 p-8 sm:p-12 border border-indigo-500/20 shadow-2xl">
+                <div class="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 max-w-3xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold mb-4">
+                        <i class="fa-solid fa-sparkles text-amber-400"></i> Standar ISO/IEC/IEEE 29148:2018 PRD Specification
+                    </div>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                        Jasa Pembuatan Website Profesional & Terintegrasi
+                    </h1>
+                    <p class="mt-4 text-base sm:text-lg text-slate-300 leading-relaxed">
+                        Pilih paket website siap pakai atau kustomisasi sesuai kebutuhan bisnis Anda. Dilengkapi pelacakan milestone transparan, sistem revisi terukur, dan skema pembayaran termin 50:50 aman.
+                    </p>
+                    <div class="mt-6 flex flex-wrap gap-4 text-xs font-medium text-slate-400">
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-400"></i> Gratis Domain & SSL 1 Tahun</span>
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-400"></i> Desain Responsif Mobile & Desktop</span>
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-400"></i> Garansi Pemeliharaan 60 Hari</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Packages Cards -->
+            <div>
+                <div class="text-center max-w-2xl mx-auto mb-8">
+                    <h2 class="text-2xl font-bold text-white">Katalog Paket Website</h2>
+                    <p class="text-sm text-slate-400 mt-1">Pilih paket dasar yang sesuai dengan skala dan tujuan website Anda</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Package 1 -->
+                    <div class="glass-card rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition border border-slate-800 relative group">
+                        <div>
+                            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Paket Starter</div>
+                            <h3 class="text-xl font-bold text-white">Landing Page UMKM</h3>
+                            <p class="text-xs text-slate-400 mt-2">Cocok untuk promosi produk tunggal, event, atau konversi iklan cepat.</p>
+                            <div class="mt-4 py-3 border-y border-slate-800">
+                                <span class="text-2xl font-extrabold text-white">Rp 850.000</span>
+                                <span class="text-xs text-slate-500">/sekali</span>
+                            </div>
+                            <ul class="mt-4 space-y-2.5 text-xs text-slate-300">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> 1 Halaman Responsif Full</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> Tombol Direct Chat WhatsApp</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> Copywriting & Desain Modern</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> Kuota 1x Revisi Minor</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-clock text-amber-400"></i> Waktu Pengerjaan 3 Hari</li>
+                            </ul>
+                        </div>
+                        <button onclick="selectPackage('Landing Page UMKM', 850000, 1)" class="w-full mt-6 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-indigo-600 text-white font-semibold text-xs transition border border-slate-700 hover:border-transparent">
+                            Pilih Paket Ini
+                        </button>
+                    </div>
+
+                    <!-- Package 2 (Best Seller) -->
+                    <div class="glass-card rounded-2xl p-6 flex flex-col justify-between border-2 border-indigo-500/80 shadow-2xl shadow-indigo-500/10 relative group">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-cyan-500 text-white text-[10px] font-extrabold uppercase px-3 py-1 rounded-full shadow">
+                            Paling Populer
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-2">Paket Bisnis</div>
+                            <h3 class="text-xl font-bold text-white">Company Profile Pro</h3>
+                            <p class="text-xs text-slate-400 mt-2">Meningkatkan kredibilitas korporat, profil lembaga, dan portofolio jasa.</p>
+                            <div class="mt-4 py-3 border-y border-slate-800">
+                                <span class="text-2xl font-extrabold text-white">Rp 2.500.000</span>
+                                <span class="text-xs text-slate-500">/sekali</span>
+                            </div>
+                            <ul class="mt-4 space-y-2.5 text-xs text-slate-300">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> 5-7 Halaman (Home, About, dll)</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> CMS Kelola Berita / Portofolio</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Form Penawaran & Lead Magnet</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Kuota 3x Revisi Terstruktur</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-clock text-amber-400"></i> Waktu Pengerjaan 7 Hari</li>
+                            </ul>
+                        </div>
+                        <button onclick="selectPackage('Company Profile Pro', 2500000, 3)" class="w-full mt-6 py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-cyan-500 text-white font-semibold text-xs transition shadow-lg shadow-indigo-500/20">
+                            Pilih Paket Ini
+                        </button>
+                    </div>
+
+                    <!-- Package 3 -->
+                    <div class="glass-card rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition border border-slate-800 relative group">
+                        <div>
+                            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">E-Commerce</div>
+                            <h3 class="text-xl font-bold text-white">Toko Online Store</h3>
+                            <p class="text-xs text-slate-400 mt-2">Katalog belanja lengkap dengan checkout, ongkir kurir otomatis, dan cart.</p>
+                            <div class="mt-4 py-3 border-y border-slate-800">
+                                <span class="text-2xl font-extrabold text-white">Rp 4.500.000</span>
+                                <span class="text-xs text-slate-500">/sekali</span>
+                            </div>
+                            <ul class="mt-4 space-y-2.5 text-xs text-slate-300">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> Manajemen Produk & Stok</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> Cek Ongkir Otomatis JNE/J&T/SiCepat</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> Payment Gateway (QRIS & VA)</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> Kuota 3x Revisi Terstruktur</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-clock text-amber-400"></i> Waktu Pengerjaan 14 Hari</li>
+                            </ul>
+                        </div>
+                        <button onclick="selectPackage('Toko Online Store', 4500000, 3)" class="w-full mt-6 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-indigo-600 text-white font-semibold text-xs transition border border-slate-700 hover:border-transparent">
+                            Pilih Paket Ini
+                        </button>
+                    </div>
+
+                    <!-- Package 4 -->
+                    <div class="glass-card rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition border border-slate-800 relative group">
+                        <div>
+                            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Enterprise</div>
+                            <h3 class="text-xl font-bold text-white">Custom Web App</h3>
+                            <p class="text-xs text-slate-400 mt-2">Sistem informasi kustom, portal akademik, dashboard multi-user, dan integrasi API.</p>
+                            <div class="mt-4 py-3 border-y border-slate-800">
+                                <span class="text-2xl font-extrabold text-white">Rp 8.000.000</span>
+                                <span class="text-xs text-slate-500">/mulai</span>
+                            </div>
+                            <ul class="mt-4 space-y-2.5 text-xs text-slate-300">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> Backend Laravel & PostgreSQL</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> Role-Based Access Control (RBAC)</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> Dockerized Staging Deployment</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-indigo-400"></i> Kuota 5x Revisi Lengkap</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-clock text-amber-400"></i> Waktu Pengerjaan 21 Hari</li>
+                            </ul>
+                        </div>
+                        <button onclick="selectPackage('Custom Web App', 8000000, 5)" class="w-full mt-6 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-indigo-600 text-white font-semibold text-xs transition border border-slate-700 hover:border-transparent">
+                            Pilih Paket Ini
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Dynamic Quotation Calculator -->
+            <div class="glass rounded-3xl p-6 sm:p-8 border border-slate-800">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Kalkulator Estimasi Biaya & Termin</h3>
+                        <p class="text-xs text-slate-400">Pilih paket dasar dan add-on tambahan untuk melihat pembagian termin 50:50 secara real-time</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Option Selectors -->
+                    <div class="lg:col-span-2 space-y-5">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-2">Pilihan Paket Dasar</label>
+                            <select id="calc-package" onchange="calculateQuotation()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                                <option value="850000|Landing Page UMKM|1">Landing Page UMKM (Rp 850.000)</option>
+                                <option value="2500000|Company Profile Pro|3" selected>Company Profile Pro (Rp 2.500.000) - Populer</option>
+                                <option value="4500000|Toko Online Store|3">Toko Online Store (Rp 4.500.000)</option>
+                                <option value="8000000|Custom Web App|5">Custom Web App (Rp 8.000.000)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-2">Fitur & Layanan Tambahan (Add-Ons)</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 cursor-pointer hover:border-slate-700 transition">
+                                    <input type="checkbox" id="addon-domain" value="200000" onchange="calculateQuotation()" class="rounded border-slate-700 text-indigo-600 focus:ring-0">
+                                    <span>Domain .com / .id Resmi (+Rp 200.000)</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 cursor-pointer hover:border-slate-700 transition">
+                                    <input type="checkbox" id="addon-hosting" value="450000" onchange="calculateQuotation()" class="rounded border-slate-700 text-indigo-600 focus:ring-0">
+                                    <span>Cloud Hosting NVMe 5GB (+Rp 450.000)</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 cursor-pointer hover:border-slate-700 transition">
+                                    <input type="checkbox" id="addon-seo" value="350000" onchange="calculateQuotation()" class="rounded border-slate-700 text-indigo-600 focus:ring-0">
+                                    <span>SEO Speed Optimization 90+ (+Rp 350.000)</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 cursor-pointer hover:border-slate-700 transition">
+                                    <input type="checkbox" id="addon-content" value="400000" onchange="calculateQuotation()" class="rounded border-slate-700 text-indigo-600 focus:ring-0">
+                                    <span>Penulisan Konten & Foto Lisensi (+Rp 400.000)</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 cursor-pointer hover:border-slate-700 transition">
+                                    <input type="checkbox" id="addon-pg" value="500000" onchange="calculateQuotation()" class="rounded border-slate-700 text-indigo-600 focus:ring-0">
+                                    <span>Integrasi Payment Gateway VA/QRIS (+Rp 500.000)</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 cursor-pointer hover:border-slate-700 transition">
+                                    <input type="checkbox" id="addon-revisi" value="250000" onchange="calculateQuotation()" class="rounded border-slate-700 text-indigo-600 focus:ring-0">
+                                    <span>Extra Kuota 2x Tiket Revisi (+Rp 250.000)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cost Summary Card -->
+                    <div class="bg-gradient-to-br from-slate-900 to-indigo-950/60 border border-indigo-500/30 rounded-2xl p-6 flex flex-col justify-between shadow-xl">
+                        <div>
+                            <div class="text-xs uppercase font-bold text-indigo-400 tracking-wider">Ringkasan Estimasi Biaya</div>
+                            <div class="mt-4 space-y-2 text-xs">
+                                <div class="flex justify-between text-slate-400">
+                                    <span>Paket Dasar:</span>
+                                    <span id="summary-base-price" class="text-white font-mono">Rp 2.500.000</span>
+                                </div>
+                                <div class="flex justify-between text-slate-400">
+                                    <span>Total Add-ons:</span>
+                                    <span id="summary-addons-price" class="text-white font-mono">Rp 0</span>
+                                </div>
+                                <div class="border-t border-slate-800 pt-2 flex justify-between font-bold text-sm text-white">
+                                    <span>Total Kontrak:</span>
+                                    <span id="summary-total-price" class="text-indigo-400 font-mono text-base">Rp 2.500.000</span>
+                                </div>
+                            </div>
+
+                            <!-- Termin Breakdown Box -->
+                            <div class="mt-5 p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2 text-xs">
+                                <div class="text-[11px] font-bold uppercase text-slate-400">Skema Pembayaran Termin 50:50</div>
+                                <div class="flex justify-between items-center text-emerald-400">
+                                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-receipt text-[10px]"></i> Termin 1 (DP 50%):</span>
+                                    <span id="summary-dp-price" class="font-mono font-bold">Rp 1.250.000</span>
+                                </div>
+                                <div class="flex justify-between items-center text-cyan-400">
+                                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-check text-[10px]"></i> Termin 2 (Pelunasan 50%):</span>
+                                    <span id="summary-pelunasan-price" class="font-mono font-bold">Rp 1.250.000</span>
+                                </div>
+                                <p class="text-[10px] text-slate-500 mt-1 italic">*Pelunasan dibayarkan setelah pengujian staging & sebelum kredensial diserahkan.</p>
+                            </div>
+                        </div>
+
+                        <button onclick="proceedToOrderFromCalc()" class="w-full mt-6 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2">
+                            <span>Lanjut Isi Brief & Pesan</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 2: FORM ORDER & BRIEF INTAKE TERPADU  -->
+        <!-- ========================================== -->
+        <section id="content-order" class="hidden space-y-8">
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white">Formulir Pemesanan & Brief Kebutuhan Website</h2>
+                    <p class="text-sm text-slate-400 mt-1">Lengkapi data bisnis dan referensi desain agar tim desainer & developer dapat segera memproses proyek Anda.</p>
+                </div>
+
+                <form id="order-form" onsubmit="handleOrderSubmit(event)" class="space-y-6">
+                    <!-- Step 1: Profil Klien -->
+                    <div class="glass-card rounded-2xl p-6 border border-slate-800">
+                        <div class="flex items-center gap-3 mb-4 text-sm font-bold text-white border-b border-slate-800 pb-3">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center">1</span>
+                            Identitas Pemesan / Klien
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Nama Lengkap / Perusahaan *</label>
+                                <input type="text" id="order-client-name" required value="CV. Berkah Mandiri Sejahtera" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Nomor WhatsApp Aktif *</label>
+                                <input type="text" id="order-client-phone" required value="081234567890" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Alamat Email Resmi *</label>
+                                <input type="email" id="order-client-email" required value="contact@berkahmandiri.id" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Pilihan Domain yang Diinginkan</label>
+                                <input type="text" id="order-client-domain" value="berkahmandiri.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Detail Paket Terpilih -->
+                    <div class="glass-card rounded-2xl p-6 border border-slate-800">
+                        <div class="flex items-center gap-3 mb-4 text-sm font-bold text-white border-b border-slate-800 pb-3">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center">2</span>
+                            Paket & Layanan yang Dipesan
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Paket Website Utama</label>
+                                <input type="text" id="order-package-display" readonly value="Company Profile Pro (Rp 2.500.000)" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-3.5 py-2 text-indigo-400 font-semibold focus:outline-none cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Total Nilai Kontrak</label>
+                                <input type="text" id="order-total-display" readonly value="Rp 2.500.000" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-3.5 py-2 text-emerald-400 font-mono font-bold focus:outline-none cursor-not-allowed">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Brief Kebutuhan Website -->
+                    <div class="glass-card rounded-2xl p-6 border border-slate-800">
+                        <div class="flex items-center gap-3 mb-4 text-sm font-bold text-white border-b border-slate-800 pb-3">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center">3</span>
+                            Kuesioner Brief & Preferensi Desain
+                        </div>
+                        <div class="space-y-4 text-xs">
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Deskripsi Singkat Bisnis & Tujuan Website *</label>
+                                <textarea id="order-brief-desc" rows="3" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-indigo-500">Perusahaan kami bergerak di bidang distribusi logistik & pengadaan barang industri. Kami membutuhkan website modern yang menampilkan profil divisi, portofolio klien, dan formulir request for quotation.</textarea>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block font-semibold text-slate-300 mb-1">Skema Warna Utama (Color Palette)</label>
+                                    <select id="order-brief-color" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-indigo-500">
+                                        <option value="Navy & Gold">Navy Blue & Gold (Elegan & Terpercaya)</option>
+                                        <option value="Emerald & White">Emerald Green & Clean White (Modern Natural)</option>
+                                        <option value="Dark Tech">Dark Mode & Neon Cyan (Teknologi & Futuristik)</option>
+                                        <option value="Monochrome Minimalist">Hitam Putih Minimalis (Artistik & Bersih)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-300 mb-1">Referensi Website Favorit (Benchmark)</label>
+                                    <input type="text" id="order-brief-ref" value="https://stripe.com, https://linear.app" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-indigo-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-300 mb-1">Aset Logo & Foto Profil Perusahaan</label>
+                                <div class="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-4 text-center cursor-pointer transition">
+                                    <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-400 mb-1"></i>
+                                    <p class="text-xs text-slate-300">Klik untuk melampirkan file logo (PNG/SVG) & dokumen pendukung</p>
+                                    <p class="text-[10px] text-slate-500">Format: ZIP, PDF, PNG, JPG (Maks. 25MB)</p>
+                                    <span id="attached-file-badge" class="inline-block mt-2 text-[11px] font-mono bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-md border border-indigo-500/20">
+                                        <i class="fa-solid fa-file-zipper mr-1"></i> logo-dan-profil-berkahmandiri.zip (2.4 MB)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Ketentuan E-Agreement & Submit -->
+                    <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
+                        <label class="flex items-start gap-3 cursor-pointer text-xs text-slate-300">
+                            <input type="checkbox" required checked class="mt-0.5 rounded border-slate-700 text-indigo-600 focus:ring-0">
+                            <span>Saya menyetujui Ketentuan Layanan WebCraft Agency: Sistem pembayaran menggunakan termin DP 50% di awal dan Pelunasan 50% saat website telah selesai diuji di server staging. Kuota revisi sesuai paket yang disepakati.</span>
+                        </label>
+
+                        <button type="submit" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-sm uppercase tracking-wider transition shadow-xl shadow-indigo-500/25 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            Kirim Brief & Terbitkan Invoice Termin 1 (DP 50%)
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 3: MILESTONE TRACKER & KANBAN         -->
+        <!-- ========================================== -->
+        <section id="content-tracker" class="hidden space-y-8">
+            <!-- Project Header Overview -->
+            <div class="glass-card rounded-3xl p-6 sm:p-8 border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">PROJ-2026-089</span>
+                        <span id="proj-status-badge" class="text-xs font-semibold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20">Fase 4: Testing & Staging</span>
+                    </div>
+                    <h2 id="proj-title" class="text-2xl font-extrabold text-white mt-2">Website Company Profile - CV. Berkah Mandiri</h2>
+                    <p class="text-xs text-slate-400 mt-1">Project Manager: <span class="text-slate-200">Rizqi Ghani Adinata</span> | Target Go-Live: <span class="text-slate-200">22 Oktober 2026</span></p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+                    <!-- Live Staging Demo Button -->
+                    <button onclick="openStagingModal()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 transition">
+                        <i class="fa-solid fa-up-right-from-square"></i>
+                        Buka Staging Preview
+                    </button>
+                    <!-- Milestone Advance Control -->
+                    <button onclick="advanceNextMilestone()" id="btn-advance-milestone" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-2 border border-slate-700 transition">
+                        <i class="fa-solid fa-forward-step"></i>
+                        <span>Lanjut ke Fase Berikutnya</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Milestone Progress Flow -->
+            <div class="glass rounded-3xl p-6 sm:p-8 border border-slate-800">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-base font-bold text-white">5 Tahapan Siklus Pengerjaan Proyek</h3>
+                    <div class="text-xs text-slate-400">Progres Keseluruhan: <span id="progress-percent-text" class="text-indigo-400 font-bold font-mono">75%</span></div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mb-8">
+                    <div id="progress-bar-fill" class="bg-gradient-to-r from-indigo-500 to-cyan-400 h-full rounded-full transition-all duration-500" style="width: 75%"></div>
+                </div>
+
+                <!-- 5 Steps Timeline Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" id="milestone-cards-container">
+                    <!-- Cards will be populated by JS -->
+                </div>
+            </div>
+
+            <!-- Staging Information & Client Sign-off Box -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-laptop-code text-indigo-400"></i> Server Pementasan (Staging Environment)
+                        </h4>
+                        <span class="text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">Active SSL</span>
+                    </div>
+                    <p class="text-xs text-slate-300">
+                        Website klien telah di-deploy ke lingkungan staging Docker untuk pengujian fungsi, kecepatan, dan tampilan di berbagai gadget:
+                    </p>
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between text-xs font-mono">
+                        <span class="text-cyan-400">https://staging-berkahmandiri.webcraft.agency</span>
+                        <button onclick="copyToClipboard('https://staging-berkahmandiri.webcraft.agency')" class="text-slate-400 hover:text-white"><i class="fa-regular fa-copy"></i></button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                        <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80">
+                            <div class="text-[10px] text-slate-500">Uptime Staging</div>
+                            <div class="text-emerald-400 font-bold mt-0.5">99.98%</div>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80">
+                            <div class="text-[10px] text-slate-500">PageSpeed Score</div>
+                            <div class="text-amber-400 font-bold mt-0.5">96 / 100</div>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80">
+                            <div class="text-[10px] text-slate-500">Database Engine</div>
+                            <div class="text-indigo-400 font-bold mt-0.5">PostgreSQL 15</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-sm font-bold text-white flex items-center gap-2 mb-2">
+                            <i class="fa-solid fa-stamp text-cyan-400"></i> Persetujuan Klien (Sign-Off)
+                        </h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Apakah Anda sudah puas dengan hasil uji coba di server staging? Klik tombol persetujuan untuk mengunci hasil dan melanjutkan ke pelunasan & serah terima.
+                        </p>
+                    </div>
+                    <button onclick="signOffStaging()" id="btn-sign-off" class="w-full mt-4 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Setujui Hasil Staging (Sign-Off)</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 4: BILLING, TERMIN, & INVOICE GATEWAY -->
+        <!-- ========================================== -->
+        <section id="content-billing" class="hidden space-y-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Billing & Penagihan Termin 50:50</h2>
+                    <p class="text-sm text-slate-400 mt-1">Kelola faktur DP dan pelunasan dengan simulator integrasi payment gateway (Virtual Account & QRIS).</p>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="text-slate-400">Total Nilai Kontrak:</span>
+                    <span id="billing-contract-total" class="font-mono font-bold text-lg text-white">Rp 2.500.000</span>
+                </div>
+            </div>
+
+            <!-- Invoices Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Invoice 1: Termin DP 50% -->
+                <div class="glass-card rounded-2xl p-6 border border-slate-800 flex flex-col justify-between relative overflow-hidden">
+                    <div id="inv-dp-ribbon" class="absolute top-4 right-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full flex items-center gap-1">
+                        <i class="fa-solid fa-circle-check"></i> LUNAS (PAID)
+                    </div>
+
+                    <div>
+                        <div class="text-xs font-mono text-slate-400">INV/2026/10/DP-001</div>
+                        <h3 class="text-lg font-bold text-white mt-1">Termin 1: Down Payment (DP 50%)</h3>
+                        <p class="text-xs text-slate-400 mt-1">Kewajiban awal sebelum dimulainya perancangan UI/UX & arsitektur sistem.</p>
+                        
+                        <div class="mt-4 p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Nominal Tagihan:</span>
+                                <span id="inv-dp-amount" class="text-white font-mono font-bold">Rp 1.250.000</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Jatuh Tempo:</span>
+                                <span class="text-slate-300">14 Oktober 2026</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Kanal Pembayaran:</span>
+                                <span id="inv-dp-channel" class="text-cyan-400 font-semibold">QRIS Dinamis / BCA VA</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex items-center gap-3">
+                        <button onclick="previewInvoiceModal('INV/2026/10/DP-001', 'Termin 1: Down Payment (DP 50%)', 1250000, 'PAID')" class="flex-1 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition border border-slate-700 flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-file-pdf text-rose-400"></i> Cetak Kuitansi PDF
+                        </button>
+                        <button id="btn-pay-dp" disabled class="py-2.5 px-4 rounded-xl bg-slate-800 text-slate-500 text-xs font-semibold cursor-not-allowed">
+                            Sudah Dibayar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Invoice 2: Termin Pelunasan 50% -->
+                <div class="glass-card rounded-2xl p-6 border-2 border-indigo-500/50 flex flex-col justify-between relative overflow-hidden shadow-xl">
+                    <div id="inv-pelunasan-ribbon" class="absolute top-4 right-4 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full flex items-center gap-1">
+                        <i class="fa-solid fa-clock"></i> BELUM DIBAYAR (PENDING)
+                    </div>
+
+                    <div>
+                        <div class="text-xs font-mono text-slate-400">INV/2026/10/SETTLE-002</div>
+                        <h3 class="text-lg font-bold text-white mt-1">Termin 2: Pelunasan Akhir (50%)</h3>
+                        <p class="text-xs text-slate-400 mt-1">Syarat pembukaan kredensial login hosting, cPanel, database, dan penerbitan BAST.</p>
+                        
+                        <div class="mt-4 p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Nominal Pelunasan:</span>
+                                <span id="inv-pelunasan-amount" class="text-emerald-400 font-mono font-bold text-sm">Rp 1.250.000</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Status Staging:</span>
+                                <span id="staging-status-text" class="text-cyan-400 font-semibold">Siap Dilunasi</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Akses Kredensial:</span>
+                                <span id="vault-lock-text" class="text-rose-400 font-semibold"><i class="fa-solid fa-lock mr-1"></i> Terkunci (Gated)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex items-center gap-3">
+                        <button onclick="previewInvoiceModal('INV/2026/10/SETTLE-002', 'Termin 2: Pelunasan Akhir (50%)', 1250000, state.pelunasanPaid ? 'PAID' : 'PENDING')" class="flex-1 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition border border-slate-700 flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-file-invoice text-indigo-400"></i> Lihat Faktur
+                        </button>
+                        <button onclick="openPaymentModal('INV/2026/10/SETTLE-002', 1250000)" id="btn-pay-pelunasan" class="py-2.5 px-5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs transition shadow-lg shadow-emerald-500/20 flex items-center gap-1.5">
+                            <i class="fa-solid fa-credit-card"></i> Bayar Sekarang
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Financial Policy & Escrow Guarantee -->
+            <div class="p-6 rounded-2xl bg-indigo-950/20 border border-indigo-500/20 flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                </div>
+                <div class="text-xs space-y-1">
+                    <h4 class="font-bold text-white">Kebijakan Keamanan Finansial & Gated Release</h4>
+                    <p class="text-slate-400 leading-relaxed">
+                        Sistem WebCraft Agency menerapkan <em>Gated Release Mechanism</em>. Kredensial sensitif (akun cPanel, database PostgreSQL, dan akun CMS) tersimpan terenkripsi dan hanya akan dibuka otomatis oleh sistem begitu webhook pembayaran Termin 2 bernilai <strong>LUNAS</strong>.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 5: MANAJEMEN TIKET REVISI BERKUOTA    -->
+        <!-- ========================================== -->
+        <section id="content-revisi" class="hidden space-y-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Sistem Tiket Revisi Berkuota</h2>
+                    <p class="text-sm text-slate-400 mt-1">Ajukan perbaikan atau penyesuaian desain secara terstruktur untuk mencegah <em>scope creep</em>.</p>
+                </div>
+                <!-- Quota Counter Widget -->
+                <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-ticket"></i>
+                    </div>
+                    <div>
+                        <div class="text-[10px] uppercase font-bold text-slate-500">Sisa Kuota Revisi Paket</div>
+                        <div class="text-lg font-bold text-white font-mono">
+                            <span id="revisi-sisa-count" class="text-emerald-400">2</span> / <span id="revisi-total-count">3</span> Tiket
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Form Ajukan Tiket Baru -->
+                <div class="glass-card rounded-2xl p-6 border border-slate-800 h-fit">
+                    <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-plus text-indigo-400"></i> Buat Tiket Revisi Baru
+                    </h3>
+                    <form id="revisi-form" onsubmit="handleRevisiSubmit(event)" class="space-y-4 text-xs">
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Bagian / Halaman yang Direvisi *</label>
+                            <input type="text" id="revisi-target" required placeholder="Contoh: Banner Utama Home / Form Kontak" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Tingkat Prioritas</label>
+                            <select id="revisi-priority" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-indigo-500">
+                                <option value="Minor (Penyesuaian Teks/Warna)">Minor (Penyesuaian Teks / Warna / Margin)</option>
+                                <option value="Sedang (Perubahan Layout)">Sedang (Perubahan Tata Letak Komponen)</option>
+                                <option value="Mayor (Fungsi Baru)">Mayor (Perlu konfirmasi PM jika di luar scope)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Deskripsi Detail Perubahan *</label>
+                            <textarea id="revisi-desc" rows="4" required placeholder="Jelaskan secara spesifik apa yang perlu diubah..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-indigo-500"></textarea>
+                        </div>
+                        <button type="submit" id="btn-submit-revisi" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            Kirim Tiket Revisi (Potong 1 Kuota)
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Daftar Riwayat Tiket Revisi -->
+                <div class="lg:col-span-2 glass-card rounded-2xl p-6 border border-slate-800">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-cyan-400"></i> Riwayat & Status Tiket Revisi
+                        </h3>
+                        <span id="revisi-total-tickets" class="text-xs text-slate-400">Total: 1 Tiket</span>
+                    </div>
+
+                    <div id="revisi-list" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 6: CREDENTIAL VAULT & BAST SERAH TERIMA-->
+        <!-- ========================================== -->
+        <section id="content-vault" class="hidden space-y-8">
+            <div class="max-w-4xl mx-auto space-y-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Secure Credential Vault & Serah Terima Proyek</h2>
+                    <p class="text-sm text-slate-400 mt-1">Akses seluruh kredensial server, hosting, panel CMS, dan Berita Acara Serah Terima (BAST).</p>
+                </div>
+
+                <!-- Gated Release Status Banner -->
+                <div id="vault-banner-locked" class="glass-card rounded-2xl p-6 border-2 border-rose-500/40 bg-rose-950/20 flex flex-col sm:flex-row items-center gap-5">
+                    <div class="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-lock text-2xl"></i>
+                    </div>
+                    <div class="text-xs space-y-1 text-center sm:text-left flex-1">
+                        <div class="text-sm font-bold text-white">Kredensial Server Saat Ini Masih Terkunci!</div>
+                        <p class="text-rose-300/80 leading-relaxed">
+                            Sesuai protokol keamanan dan kontrak pengerjaan, kredensial hosting, database PostgreSQL, dan akun administrator CMS hanya dapat dibuka setelah <strong>Termin 2 (Pelunasan 50%)</strong> dinyatakan lunas.
+                        </p>
+                    </div>
+                    <button onclick="switchTab('billing')" class="py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs whitespace-nowrap shadow-lg shadow-emerald-500/20">
+                        Selesaikan Pelunasan
+                    </button>
+                </div>
+
+                <div id="vault-banner-unlocked" class="hidden glass-card rounded-2xl p-6 border-2 border-emerald-500/40 bg-emerald-950/20 flex flex-col sm:flex-row items-center gap-5">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-lock-open text-2xl"></i>
+                    </div>
+                    <div class="text-xs space-y-1 text-center sm:text-left flex-1">
+                        <div class="text-sm font-bold text-emerald-200">Kredensial Resmi Berhasil Terbuka Penuh!</div>
+                        <p class="text-emerald-300/80 leading-relaxed">
+                            Terima kasih! Pembayaran termin 1 dan termin 2 telah lunas terverifikasi. Seluruh hak akses, kredensial, dan repositori telah diserahkan sepenuhnya kepada klien.
+                        </p>
+                    </div>
+                    <button onclick="downloadBASTModal()" class="py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs whitespace-nowrap flex items-center gap-2 shadow-lg shadow-emerald-600/20">
+                        <i class="fa-solid fa-certificate"></i> Unduh BAST Digital
+                    </button>
+                </div>
+
+                <!-- Credential Cards Container -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="vault-credentials-list">
+                    <!-- Cards will be populated or blurred based on state -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-slate-800 bg-slate-900/60 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>© 2026 WebCraft Agency Platform. MK Pemrograman Web (Semester 5 SI UNUGHA).</p>
+            <div class="flex items-center gap-4 text-slate-400">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle text-[8px] text-emerald-400"></i> Client Lifecycle Active</span>
+                <span>Standar PRD ISO/IEC/IEEE 29148:2018</span>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- ========================================== -->
+    <!-- MODAL: PAYMENT GATEWAY SIMULATOR           -->
+    <!-- ========================================== -->
+    <div id="modal-payment" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 max-w-md w-full rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-qrcode"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-base font-bold text-white">Payment Gateway Simulator</h4>
+                        <p class="text-xs text-slate-400" id="modal-pay-inv">INV/2026/10/SETTLE-002</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-payment')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="space-y-4 text-xs">
+                <div class="text-center p-4 bg-slate-950 rounded-2xl border border-slate-800">
+                    <p class="text-slate-400 text-xs">Total Pembayaran Pelunasan</p>
+                    <p id="modal-pay-amount" class="text-2xl font-extrabold text-emerald-400 font-mono mt-1">Rp 1.250.000</p>
+                </div>
+
+                <!-- Payment Method Selection -->
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-2">Pilih Kanal Pembayaran Digital:</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center justify-between p-3 rounded-xl bg-slate-800/80 border border-indigo-500/40 cursor-pointer">
+                            <span class="flex items-center gap-2 text-white font-medium">
+                                <i class="fa-solid fa-qrcode text-indigo-400"></i> QRIS Dinamis (Gopay/OVO/ShopeePay)
+                            </span>
+                            <input type="radio" name="pay-method" checked class="text-indigo-600 focus:ring-0">
+                        </label>
+                        <label class="flex items-center justify-between p-3 rounded-xl bg-slate-800/50 border border-slate-700/60 cursor-pointer">
+                            <span class="flex items-center gap-2 text-white font-medium">
+                                <i class="fa-solid fa-building-columns text-cyan-400"></i> Virtual Account Bank BCA (827100...)
+                            </span>
+                            <input type="radio" name="pay-method" class="text-indigo-600 focus:ring-0">
+                        </label>
+                        <label class="flex items-center justify-between p-3 rounded-xl bg-slate-800/50 border border-slate-700/60 cursor-pointer">
+                            <span class="flex items-center gap-2 text-white font-medium">
+                                <i class="fa-solid fa-building-columns text-emerald-400"></i> Virtual Account Bank Mandiri
+                            </span>
+                            <input type="radio" name="pay-method" class="text-indigo-600 focus:ring-0">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[11px] flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info"></i>
+                    Ini adalah simulator instant callback webhook untuk demonstrasi sistem.
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeModal('modal-payment')" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs">
+                    Batal
+                </button>
+                <button onclick="processPelunasanPayment()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check"></i>
+                    Simulasikan Bayar Berhasil
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- MODAL: STAGING DEMO PREVIEW               -->
+    <!-- ========================================== -->
+    <div id="modal-staging" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 max-w-4xl w-full rounded-3xl p-6 shadow-2xl flex flex-col h-[85vh]">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="flex gap-1.5">
+                        <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                        <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                    </div>
+                    <div class="bg-slate-950 px-4 py-1 rounded-lg border border-slate-800 text-xs font-mono text-cyan-400">
+                        https://staging-berkahmandiri.webcraft.agency
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-staging')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- Simulated Browser Frame -->
+            <div class="flex-1 bg-slate-950 rounded-2xl border border-slate-800 overflow-y-auto p-8 space-y-8">
+                <!-- Staging Mockup Header -->
+                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-truck-fast text-indigo-400"></i> CV. Berkah Mandiri Sejahtera
+                    </div>
+                    <div class="flex items-center gap-4 text-xs text-slate-400">
+                        <span>Tentang Kami</span>
+                        <span>Layanan Logistik</span>
+                        <span>Armada</span>
+                        <span class="bg-indigo-600 text-white px-3 py-1 rounded-full">Hubungi Kami</span>
+                    </div>
+                </div>
+
+                <!-- Staging Hero -->
+                <div class="py-12 text-center max-w-2xl mx-auto space-y-4">
+                    <span class="text-xs uppercase tracking-widest text-indigo-400 font-bold bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">Solusi Logistik & Kargo Nasional</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Mitra Logistik Terpercaya Bisnis Anda</h2>
+                    <p class="text-xs text-slate-400">Menyediakan pengiriman kargo cepat, aman, dan terintegrasi di seluruh wilayah Indonesia dengan armada modern berpendingin.</p>
+                    <div class="pt-2 flex justify-center gap-3">
+                        <button class="bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-xl">Minta Penawaran Harga</button>
+                        <button class="bg-slate-800 text-slate-300 text-xs font-bold px-4 py-2 rounded-xl">Lihat Rute Armada</button>
+                    </div>
+                </div>
+
+                <!-- Staging Features -->
+                <div class="grid grid-cols-3 gap-4 text-xs">
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center">
+                        <i class="fa-solid fa-satellite-dish text-indigo-400 text-xl mb-2"></i>
+                        <h4 class="font-bold text-white">Live GPS Tracking</h4>
+                        <p class="text-[11px] text-slate-400 mt-1">Pantau pergerakan armada secara real-time 24 jam non-stop.</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center">
+                        <i class="fa-solid fa-shield-virus text-emerald-400 text-xl mb-2"></i>
+                        <h4 class="font-bold text-white">Asuransi All-Risk</h4>
+                        <p class="text-[11px] text-slate-400 mt-1">Jaminan keamanan penuh terhadap seluruh komoditas muatan.</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center">
+                        <i class="fa-solid fa-clock text-cyan-400 text-xl mb-2"></i>
+                        <h4 class="font-bold text-white">Tepat Waktu (SLA)</h4>
+                        <p class="text-[11px] text-slate-400 mt-1">Ketepatan pengantaran sesuai komitmen lead time jadwal.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between text-xs text-slate-400">
+                <span>Versi Build Staging: <code class="text-indigo-400">v1.4.2-rc (PostgreSQL Staging DB)</code></span>
+                <button onclick="closeModal('modal-staging')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl font-semibold">Tutup Preview</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- MODAL: PREVIEW INVOICE / KUITANSI DIGITAL  -->
+    <!-- ========================================== -->
+    <div id="modal-invoice" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 max-w-lg w-full rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-indigo-400"></i> Faktur & Kuitansi Resmi WebCraft
+                </div>
+                <button onclick="closeModal('modal-invoice')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="space-y-4 text-xs font-mono bg-slate-950 p-6 rounded-2xl border border-slate-800 text-slate-300">
+                <div class="flex justify-between border-b border-slate-800 pb-3">
+                    <div>
+                        <div class="font-bold text-white">WEBCRAFT AGENCY</div>
+                        <div class="text-[10px] text-slate-500">Jakarta & Cilacap, Indonesia</div>
+                    </div>
+                    <div class="text-right">
+                        <div id="inv-modal-number" class="font-bold text-cyan-400">INV/2026/10/DP-001</div>
+                        <div class="text-[10px] text-slate-500">Tanggal: 14 Okt 2026</div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="text-[10px] text-slate-500 uppercase">DITUJUKAN KEPADA:</div>
+                    <div class="font-bold text-white" id="inv-modal-client">CV. Berkah Mandiri Sejahtera</div>
+                    <div class="text-[11px] text-slate-400">Paket: <span id="inv-modal-title">Company Profile Pro</span></div>
+                </div>
+
+                <div class="border-t border-slate-800 pt-3 flex justify-between items-center text-sm">
+                    <span class="text-white">TOTAL DIBAYAR:</span>
+                    <span id="inv-modal-amount" class="text-emerald-400 font-extrabold text-base">Rp 1.250.000</span>
+                </div>
+
+                <div class="border-t border-slate-800 pt-3 flex justify-between items-center">
+                    <span>STATUS TRANSAKSI:</span>
+                    <span id="inv-modal-status-badge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                        LUNAS / VERIFIED
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeModal('modal-invoice')" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs">
+                    Tutup
+                </button>
+                <button onclick="window.print()" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-print"></i> Cetak Dokumen
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- MODAL: DOWNLOAD BAST SERAH TERIMA          -->
+    <!-- ========================================== -->
+    <div id="modal-bast" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 max-w-lg w-full rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h4 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-certificate text-emerald-400"></i> Berita Acara Serah Terima (BAST)
+                </h4>
+                <button onclick="closeModal('modal-bast')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="space-y-3 text-xs bg-slate-950 p-6 rounded-2xl border border-slate-800 text-slate-300">
+                <div class="text-center font-bold text-white border-b border-slate-800 pb-2">
+                    BERITA ACARA SERAH TERIMA PEKERJAAN WEBSITE<br>
+                    <span class="text-[10px] text-slate-500 font-mono font-normal">Nomor: BAST/2026/X/089</span>
+                </div>
+                <p class="leading-relaxed">
+                    Pada hari ini, <strong>14 Oktober 2026</strong>, pihak WebCraft Agency telah menyelesaikan dan menyerahkan pekerjaan pengembangan website secara utuh kepada:
+                </p>
+                <div class="p-3 bg-slate-900 rounded-xl space-y-1 font-mono text-[11px]">
+                    <div>Pihak Klien: <strong>CV. Berkah Mandiri Sejahtera</strong></div>
+                    <div>Domain Utama: <strong>berkahmandiri.com</strong></div>
+                    <div>Status Pembayaran: <strong>100% LUNAS (Termin 1 & 2)</strong></div>
+                    <div>Masa Garansi Bug: <strong>60 Hari (Hingga 14 Des 2026)</strong></div>
+                </div>
+                <p class="text-[11px] text-slate-400">
+                    Dengan terbitnya dokumen ini, kredensial hosting, database, dan login CMS telah menjadi wewenang penuh pihak klien.
+                </p>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeModal('modal-bast')" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs">
+                    Tutup
+                </button>
+                <button onclick="window.print()" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-arrow-down"></i> Cetak / Simpan PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT APPLICATION LOGIC               -->
+    <!-- ========================================== -->
+    <script>
+        // State Management with LocalStorage
+        const DEFAULT_STATE = {
+            role: 'client',
+            activeTab: 'katalog',
+            package: {
+                name: 'Company Profile Pro',
+                basePrice: 2500000,
+                revisiQuota: 3
+            },
+            addons: [],
+            totalPrice: 2500000,
+            dpPrice: 1250000,
+            pelunasanPrice: 1250000,
+            order: {
+                clientName: 'CV. Berkah Mandiri Sejahtera',
+                clientPhone: '081234567890',
+                clientEmail: 'contact@berkahmandiri.id',
+                domain: 'berkahmandiri.com',
+                briefDesc: 'Perusahaan logistik kargo nasional membutuhkan website profil korporat modern.',
+                palette: 'Navy & Gold',
+                benchmark: 'https://stripe.com'
+            },
+            currentMilestoneIndex: 3, // 0: Brief, 1: Wireframe, 2: Dev, 3: Testing Staging, 4: Handover
+            stagingSignedOff: false,
+            dpPaid: true,
+            pelunasanPaid: false,
+            revisiRemaining: 2,
+            revisiTotal: 3,
+            revisiList: [
+                {
+                    id: 'REV-001',
+                    target: 'Warna Tombol CTA Header',
+                    priority: 'Minor (Penyesuaian Teks/Warna)',
+                    desc: 'Ubah warna tombol kontak di navbar dari merah menjadi biru navy sesuai warna logo utama.',
+                    status: 'Selesai',
+                    date: '14 Okt 2026 10:15'
+                }
+            ]
+        };
+
+        let state = JSON.parse(localStorage.getItem('webcraft_state')) || DEFAULT_STATE;
+
+        function saveState() {
+            localStorage.setItem('webcraft_state', JSON.stringify(state));
+            renderApp();
+        }
+
+        function resetDataDemo() {
+            if (confirm('Reset seluruh data demo ke kondisi awal?')) {
+                state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+                saveState();
+                location.reload();
+            }
+        }
+
+        // Format Currency Helper
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
+        }
+
+        // Switch Tabs
+        function switchTab(tabId) {
+            state.activeTab = tabId;
+            const tabs = ['katalog', 'order', 'tracker', 'billing', 'revisi', 'vault'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const content = document.getElementById(`content-${t}`);
+                if (btn && content) {
+                    if (t === tabId) {
+                        btn.classList.add('active');
+                        btn.classList.remove('text-slate-400');
+                        content.classList.remove('hidden');
+                    } else {
+                        btn.classList.remove('active');
+                        btn.classList.add('text-slate-400');
+                        content.classList.add('hidden');
+                    }
+                }
+            });
+            saveState();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Role Switcher
+        function setRole(roleName) {
+            state.role = roleName;
+            const clientBtn = document.getElementById('role-client-btn');
+            const adminBtn = document.getElementById('role-admin-btn');
+            if (roleName === 'client') {
+                clientBtn.className = "px-3 py-1.5 rounded-lg font-medium transition text-white bg-indigo-600 shadow";
+                adminBtn.className = "px-3 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white";
+            } else {
+                adminBtn.className = "px-3 py-1.5 rounded-lg font-medium transition text-white bg-indigo-600 shadow";
+                clientBtn.className = "px-3 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white";
+            }
+            saveState();
+        }
+
+        // Select Package from Catalog Cards
+        function selectPackage(name, price, quota) {
+            state.package = { name, basePrice: price, revisiQuota: quota };
+            state.revisiTotal = quota;
+            state.revisiRemaining = quota;
+            
+            // Set select option
+            const select = document.getElementById('calc-package');
+            if (select) {
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value.includes(name)) {
+                        select.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+            calculateQuotation();
+            switchTab('order');
+        }
+
+        // Calculate Quotation in Calculator
+        function calculateQuotation() {
+            const select = document.getElementById('calc-package');
+            if (!select) return;
+
+            const [basePrice, pkgName, quota] = select.value.split('|');
+            let base = parseInt(basePrice);
+            let addonsTotal = 0;
+
+            const addonIds = ['addon-domain', 'addon-hosting', 'addon-seo', 'addon-content', 'addon-pg', 'addon-revisi'];
+            addonIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.checked) {
+                    addonsTotal += parseInt(el.value);
+                }
+            });
+
+            const total = base + addonsTotal;
+            const dp = Math.round(total * 0.5);
+            const pelunasan = total - dp;
+
+            state.package.name = pkgName;
+            state.package.basePrice = base;
+            state.package.revisiQuota = parseInt(quota);
+            state.totalPrice = total;
+            state.dpPrice = dp;
+            state.pelunasanPrice = pelunasan;
+
+            // Update UI elements
+            document.getElementById('summary-base-price').textContent = formatRupiah(base);
+            document.getElementById('summary-addons-price').textContent = formatRupiah(addonsTotal);
+            document.getElementById('summary-total-price').textContent = formatRupiah(total);
+            document.getElementById('summary-dp-price').textContent = formatRupiah(dp);
+            document.getElementById('summary-pelunasan-price').textContent = formatRupiah(pelunasan);
+
+            // Update order display inputs
+            document.getElementById('order-package-display').value = `${pkgName} (${formatRupiah(base)})`;
+            document.getElementById('order-total-display').value = formatRupiah(total);
+            document.getElementById('billing-contract-total').textContent = formatRupiah(total);
+            document.getElementById('inv-dp-amount').textContent = formatRupiah(dp);
+            document.getElementById('inv-pelunasan-amount').textContent = formatRupiah(pelunasan);
+
+            saveState();
+        }
+
+        function proceedToOrderFromCalc() {
+            switchTab('order');
+        }
+
+        // Handle Order Form Submit
+        function handleOrderSubmit(e) {
+            e.preventDefault();
+            state.order = {
+                clientName: document.getElementById('order-client-name').value,
+                clientPhone: document.getElementById('order-client-phone').value,
+                clientEmail: document.getElementById('order-client-email').value,
+                domain: document.getElementById('order-client-domain').value,
+                briefDesc: document.getElementById('order-brief-desc').value,
+                palette: document.getElementById('order-brief-color').value,
+                benchmark: document.getElementById('order-brief-ref').value
+            };
+
+            // Reset milestone to step 1 (Requirements) and unpay pelunasan
+            state.currentMilestoneIndex = 1;
+            state.dpPaid = true;
+            state.pelunasanPaid = false;
+            state.stagingSignedOff = false;
+
+            // Trigger confetti
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+            alert(`✅ Pesanan & Brief untuk ${state.order.clientName} berhasil dikirim!\nFaktur Termin 1 (DP 50% - ${formatRupiah(state.dpPrice)}) diterbitkan.`);
+            saveState();
+            switchTab('billing');
+        }
+
+        // Advance Milestone
+        function advanceNextMilestone() {
+            if (state.currentMilestoneIndex < 4) {
+                state.currentMilestoneIndex++;
+                if (state.currentMilestoneIndex === 4 && !state.pelunasanPaid) {
+                    alert('⚠️ Anda telah mencapai Fase Serah Terima (Handover). Silakan lakukan pelunasan 50% di menu Billing untuk membuka kredensial.');
+                }
+                saveState();
+            } else {
+                alert('Proyek sudah mencapai tahapan final (100% Handover & Go-Live).');
+            }
+        }
+
+        function signOffStaging() {
+            state.stagingSignedOff = true;
+            state.currentMilestoneIndex = 4;
+            confetti({ particleCount: 80, spread: 60 });
+            alert('🎉 Terima kasih! Hasil pengujian staging telah disetujui.\nSilakan lanjutkan ke menu Billing untuk pelunasan dan pembukaan kredensial.');
+            saveState();
+            switchTab('billing');
+        }
+
+        // Payment Simulation
+        function openPaymentModal(invNumber, amount) {
+            document.getElementById('modal-pay-inv').textContent = invNumber;
+            document.getElementById('modal-pay-amount').textContent = formatRupiah(amount);
+            document.getElementById('modal-payment').classList.remove('hidden');
+        }
+
+        function processPelunasanPayment() {
+            state.pelunasanPaid = true;
+            closeModal('modal-payment');
+            confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 } });
+            alert('🎉 Pembayaran Pelunasan 50% BERHASIL!\nStatus berubah menjadi LUNAS. Akses ke Credential Vault kini TERBUKA.');
+            saveState();
+            switchTab('vault');
+        }
+
+        // Preview Invoices
+        function previewInvoiceModal(number, title, amount, status) {
+            document.getElementById('inv-modal-number').textContent = number;
+            document.getElementById('inv-modal-title').textContent = title;
+            document.getElementById('inv-modal-client').textContent = state.order.clientName;
+            document.getElementById('inv-modal-amount').textContent = formatRupiah(amount);
+            
+            const badge = document.getElementById('inv-modal-status-badge');
+            if (status === 'PAID') {
+                badge.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                badge.textContent = "LUNAS / VERIFIED";
+            } else {
+                badge.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                badge.textContent = "BELUM BAYAR / PENDING";
+            }
+
+            document.getElementById('modal-invoice').classList.remove('hidden');
+        }
+
+        function openStagingModal() {
+            document.getElementById('modal-staging').classList.remove('hidden');
+        }
+
+        function downloadBASTModal() {
+            document.getElementById('modal-bast').classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // Copy Helper
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            alert(`Tersalin ke clipboard: ${text}`);
+        }
+
+        // Handle Revision Submit
+        function handleRevisiSubmit(e) {
+            e.preventDefault();
+            if (state.revisiRemaining <= 0) {
+                alert('⚠️ Kuota tiket revisi Anda telah habis. Silakan hubungi PM untuk add-on kuota revisi.');
+                return;
+            }
+
+            const target = document.getElementById('revisi-target').value;
+            const priority = document.getElementById('revisi-priority').value;
+            const desc = document.getElementById('revisi-desc').value;
+
+            const newTicket = {
+                id: `REV-00${state.revisiList.length + 1}`,
+                target,
+                priority,
+                desc,
+                status: 'Dalam Pengerjaan',
+                date: 'Hari ini'
+            };
+
+            state.revisiList.unshift(newTicket);
+            state.revisiRemaining--;
+
+            document.getElementById('revisi-target').value = '';
+            document.getElementById('revisi-desc').value = '';
+
+            alert(`✅ Tiket revisi ${newTicket.id} berhasil diajukan! Sisa kuota revisi Anda: ${state.revisiRemaining}`);
+            saveState();
+        }
+
+        // Render Application UI based on state
+        function renderApp() {
+            // Milestone Configuration
+            const milestones = [
+                { title: '1. Brief & Discovery', desc: 'Pengumpulan aset, kuesioner, & kontrak DP', icon: 'fa-clipboard-list' },
+                { title: '2. Wireframe & UI/UX', desc: 'Desain visual & approval prototipe', icon: 'fa-pen-ruler' },
+                { title: '3. Web Development', desc: 'Slicing frontend & integrasi database', icon: 'fa-code' },
+                { title: '4. Staging & Testing', desc: 'Uji fungsi live di server demo pementasan', icon: 'fa-vial-circle-check' },
+                { title: '5. Handover & Go-Live', desc: 'Pelunasan, buka kredensial, & rilis domain', icon: 'fa-rocket' }
+            ];
+
+            const container = document.getElementById('milestone-cards-container');
+            if (container) {
+                container.innerHTML = '';
+                milestones.forEach((m, idx) => {
+                    const isPassed = idx < state.currentMilestoneIndex;
+                    const isCurrent = idx === state.currentMilestoneIndex;
+                    
+                    let borderClass = 'border-slate-800 bg-slate-900/50 text-slate-500';
+                    let iconBg = 'bg-slate-800 text-slate-500';
+                    let statusLabel = `<span class="text-[10px] text-slate-500">Menunggu</span>`;
+
+                    if (isPassed) {
+                        borderClass = 'border-emerald-500/40 bg-emerald-950/20 text-slate-200';
+                        iconBg = 'bg-emerald-500/20 text-emerald-400';
+                        statusLabel = `<span class="text-[10px] font-bold text-emerald-400"><i class="fa-solid fa-check mr-1"></i>Selesai</span>`;
+                    } else if (isCurrent) {
+                        borderClass = 'border-indigo-500 bg-indigo-950/40 text-white ring-2 ring-indigo-500/20 shadow-lg shadow-indigo-500/10';
+                        iconBg = 'bg-indigo-600 text-white';
+                        statusLabel = `<span class="text-[10px] font-bold text-cyan-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>Sedang Berjalan</span>`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = `p-4 rounded-2xl border ${borderClass} flex flex-col justify-between transition`;
+                    card.innerHTML = `
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-8 h-8 rounded-xl ${iconBg} flex items-center justify-center text-xs font-bold">
+                                    <i class="fa-solid ${m.icon}"></i>
+                                </div>
+                                ${statusLabel}
+                            </div>
+                            <h4 class="text-xs font-bold text-white">${m.title}</h4>
+                            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">${m.desc}</p>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+
+            // Update Progress Percentage
+            const percent = ((state.currentMilestoneIndex) / (milestones.length - 1)) * 100;
+            const progressFill = document.getElementById('progress-bar-fill');
+            const progressText = document.getElementById('progress-percent-text');
+            const badgeProgress = document.getElementById('badge-progress');
+            if (progressFill) progressFill.style.width = `${percent}%`;
+            if (progressText) progressText.textContent = `${Math.round(percent)}%`;
+            if (badgeProgress) badgeProgress.textContent = `${Math.round(percent)}%`;
+
+            // Update Project Overview
+            const projTitle = document.getElementById('proj-title');
+            if (projTitle) projTitle.textContent = `Website ${state.package.name} - ${state.order.clientName}`;
+
+            // Update Billing Statuses
+            const pelunasanRibbon = document.getElementById('inv-pelunasan-ribbon');
+            const payPelunasanBtn = document.getElementById('btn-pay-pelunasan');
+            const badgeInvoice = document.getElementById('badge-invoice-count');
+            const vaultLockText = document.getElementById('vault-lock-text');
+
+            if (state.pelunasanPaid) {
+                if (pelunasanRibbon) {
+                    pelunasanRibbon.className = "absolute top-4 right-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full flex items-center gap-1";
+                    pelunasanRibbon.innerHTML = '<i class="fa-solid fa-circle-check"></i> LUNAS (PAID)';
+                }
+                if (payPelunasanBtn) {
+                    payPelunasanBtn.disabled = true;
+                    payPelunasanBtn.className = "py-2.5 px-5 rounded-xl bg-slate-800 text-slate-500 text-xs font-semibold cursor-not-allowed";
+                    payPelunasanBtn.textContent = "Sudah Lunas";
+                }
+                if (badgeInvoice) {
+                    badgeInvoice.className = "bg-emerald-500/20 text-emerald-300 text-[10px] px-1.5 py-0.2 rounded-full border border-emerald-500/30";
+                    badgeInvoice.textContent = "Semua Lunas";
+                }
+                if (vaultLockText) {
+                    vaultLockText.className = "text-emerald-400 font-semibold";
+                    vaultLockText.innerHTML = '<i class="fa-solid fa-lock-open mr-1"></i> Terbuka Penuh';
+                }
+            } else {
+                if (badgeInvoice) {
+                    badgeInvoice.className = "bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.2 rounded-full border border-amber-500/30";
+                    badgeInvoice.textContent = "1 Pending";
+                }
+            }
+
+            // Update Revision Quota UI
+            const revisiSisa = document.getElementById('revisi-sisa-count');
+            const revisiTotal = document.getElementById('revisi-total-count');
+            const badgeRevisi = document.getElementById('badge-revisi-quota');
+            const btnSubmitRevisi = document.getElementById('btn-submit-revisi');
+
+            if (revisiSisa) revisiSisa.textContent = state.revisiRemaining;
+            if (revisiTotal) revisiTotal.textContent = state.revisiTotal;
+            if (badgeRevisi) badgeRevisi.textContent = `${state.revisiRemaining}/${state.revisiTotal} Sisa`;
+
+            if (state.revisiRemaining <= 0 && btnSubmitRevisi) {
+                btnSubmitRevisi.disabled = true;
+                btnSubmitRevisi.className = "w-full py-2.5 px-4 rounded-xl bg-slate-800 text-slate-500 font-semibold text-xs cursor-not-allowed";
+                btnSubmitRevisi.textContent = "Kuota Revisi Habis";
+            }
+
+            // Render Revision List
+            const revisiListContainer = document.getElementById('revisi-list');
+            if (revisiListContainer) {
+                revisiListContainer.innerHTML = '';
+                document.getElementById('revisi-total-tickets').textContent = `Total: ${state.revisiList.length} Tiket`;
+                
+                state.revisiList.forEach(t => {
+                    const item = document.createElement('div');
+                    item.className = "p-4 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-4";
+                    item.innerHTML = `
+                        <div class="space-y-1 text-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono font-bold text-indigo-400">${t.id}</span>
+                                <span class="font-semibold text-white">${t.target}</span>
+                                <span class="text-[10px] text-slate-500">${t.date}</span>
+                            </div>
+                            <p class="text-slate-400">${t.desc}</p>
+                            <span class="inline-block text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">${t.priority}</span>
+                        </div>
+                        <span class="text-[11px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${t.status === 'Selesai' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
+                            ${t.status}
+                        </span>
+                    `;
+                    revisiListContainer.appendChild(item);
+                });
+            }
+
+            // Render Credential Vault (Gated Release)
+            const bannerLocked = document.getElementById('vault-banner-locked');
+            const bannerUnlocked = document.getElementById('vault-banner-unlocked');
+            const vaultList = document.getElementById('vault-credentials-list');
+
+            if (state.pelunasanPaid) {
+                if (bannerLocked) bannerLocked.classList.add('hidden');
+                if (bannerUnlocked) bannerUnlocked.classList.remove('hidden');
+            } else {
+                if (bannerLocked) bannerLocked.classList.remove('hidden');
+                if (bannerUnlocked) bannerUnlocked.classList.add('hidden');
+            }
+
+            if (vaultList) {
+                const creds = [
+                    { title: 'Hosting cPanel / Server Control', host: 'https://cpanel.berkahmandiri.com:2083', user: 'berkah_adm', pass: 'Secr3t#2026!WbC', icon: 'fa-server' },
+                    { title: 'Database PostgreSQL 15', host: 'db.berkahmandiri.com (Port 5432)', user: 'pg_berkah', pass: 'PgPass_Prod#8821', icon: 'fa-database' },
+                    { title: 'CMS Admin (WordPress / Laravel)', host: 'https://berkahmandiri.com/admin', user: 'superadmin', pass: 'Adm!n#WebCraft2026', icon: 'fa-lock' },
+                    { title: 'Domain Registrar & DNS Zone', host: 'panel.idcloudhost.com', user: 'contact@berkahmandiri.id', pass: 'IdCh#Reg2026_99', icon: 'fa-globe' }
+                ];
+
+                vaultList.innerHTML = '';
+                creds.forEach(c => {
+                    const isUnlocked = state.pelunasanPaid;
+                    const card = document.createElement('div');
+                    card.className = `p-5 rounded-2xl border ${isUnlocked ? 'border-slate-800 bg-slate-900' : 'border-slate-800/60 bg-slate-900/30'} flex flex-col justify-between`;
+                    
+                    if (isUnlocked) {
+                        card.innerHTML = `
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2.5 text-sm font-bold text-white">
+                                        <i class="fa-solid ${c.icon} text-indigo-400"></i> ${c.title}
+                                    </div>
+                                    <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Unlocked</span>
+                                </div>
+                                <div class="space-y-1.5 text-xs font-mono bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                    <div class="flex justify-between text-slate-400">
+                                        <span>URL:</span>
+                                        <span class="text-cyan-400 truncate max-w-[200px]">${c.host}</span>
+                                    </div>
+                                    <div class="flex justify-between text-slate-400">
+                                        <span>User:</span>
+                                        <span class="text-white">${c.user}</span>
+                                    </div>
+                                    <div class="flex justify-between text-slate-400">
+                                        <span>Password:</span>
+                                        <span class="text-amber-300 font-bold">${c.pass}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="copyToClipboard('${c.user} | ${c.pass}')" class="mt-4 w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition">
+                                <i class="fa-regular fa-copy"></i> Salin Kredensial
+                            </button>
+                        `;
+                    } else {
+                        card.innerHTML = `
+                            <div class="space-y-3 opacity-40 blur-[1px] select-none pointer-events-none">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2.5 text-sm font-bold text-white">
+                                        <i class="fa-solid ${c.icon}"></i> ${c.title}
+                                    </div>
+                                </div>
+                                <div class="space-y-1.5 text-xs font-mono bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                    <div>URL: https://hidden-credentials.com</div>
+                                    <div>User: ***********</div>
+                                    <div>Password: ********************</div>
+                                </div>
+                            </div>
+                            <div class="mt-4 py-2 text-center text-xs text-rose-400 font-semibold bg-rose-500/10 rounded-xl border border-rose-500/20">
+                                <i class="fa-solid fa-lock mr-1"></i> Terkunci (Perlu Pelunasan 50%)
+                            </div>
+                        `;
+                    }
+                    vaultList.appendChild(card);
+                });
+            }
+        }
+
+        // Initialize application on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderApp();
+            calculateQuotation();
+        });
+    </script>
+</body>
+</html>
