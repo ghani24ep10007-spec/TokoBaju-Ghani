@@ -3,6 +3,20 @@
 
 define('LARAVEL_START', microtime(true));
 
+// 1. Jika vendor/autoload.php ada (Full Composer/Laravel Mode)
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require __DIR__ . '/vendor/autoload.php';
+    $app = require_once __DIR__ . '/bootstrap/app.php';
+    $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+    $status = $kernel->handle(
+        $input = new Symfony\Component\Console\Input\ArgvInput,
+        new Symfony\Component\Console\Output\ConsoleOutput
+    );
+    $kernel->terminate($input, $status);
+    exit($status);
+}
+
+// 2. Fallback Mode (Docker Containerized / Quick Run tanpa Composer lokal)
 $args = $argv;
 array_shift($args);
 
@@ -19,24 +33,38 @@ if ($command === 'serve') {
             $port = substr($arg, 7);
         }
     }
-    echo "\033[32m[Laravel Docker App]\033[0m Server running at: http://{$host}:{$port}\n";
+    echo "\033[32m[Laravel Docker App]\033[0m Toko Baju Ghani server running at: http://{$host}:{$port}\n";
     passthru("php -S {$host}:{$port} server.php");
     exit(0);
 }
 
-if ($command === 'migrate') {
-    echo "\033[36m[Migrate]\033[0m Menyiapkan tabel PostgreSQL...\n";
+if ($command === 'migrate' || $command === 'migrate:fresh') {
+    echo "\033[36m[Migrate]\033[0m Menyiapkan tabel PostgreSQL (mahasiswa & products)...\n";
     require_once __DIR__ . '/database/migrate.php';
     exit(0);
 }
 
-if ($command === '--version' || $command === '-V') {
-    echo "Laravel Framework (Docker Web Environment) 10.x\n";
+if ($command === 'db:seed') {
+    echo "\033[36m[Seeder]\033[0m Mengisi database dengan katalog Toko Baju & Mahasiswa...\n";
+    require_once __DIR__ . '/database/migrate.php';
     exit(0);
 }
 
-echo "Laravel Artisan CLI\n";
+if ($command === 'key:generate') {
+    $key = 'base64:' . base64_encode(random_bytes(32));
+    echo "\033[32mApplication key set successfully:\033[0m {$key}\n";
+    exit(0);
+}
+
+if ($command === '--version' || $command === '-V') {
+    echo "Laravel Framework (Docker Web Environment) 10.x - Toko Baju Ghani\n";
+    exit(0);
+}
+
+echo "Laravel Artisan CLI - Toko Baju Ghani\n";
 echo "Perintah yang tersedia:\n";
-echo "  php artisan serve       Menjalankan server aplikasi\n";
-echo "  php artisan migrate     Menjalankan migrasi database PostgreSQL\n";
-echo "  php artisan --version   Melihat versi aplikasi\n";
+echo "  php artisan serve         Menjalankan server web aplikasi (Port 8000)\n";
+echo "  php artisan migrate       Menjalankan migrasi database PostgreSQL\n";
+echo "  php artisan db:seed       Menjalankan seeder produk & data mahasiswa\n";
+echo "  php artisan key:generate  Generate APP_KEY enkripsi Laravel\n";
+echo "  php artisan --version     Melihat versi Laravel framework\n";

@@ -1,0 +1,97 @@
+name: CI/CD Pipeline - Toko Baju Ghani (Laravel & Docker)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  code-quality:
+    name: Code Quality & PHP Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP Environment
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, pdo, pdo_pgsql, pgsql
+          coverage: none
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: PHP Syntax Linting
+        run: |
+          echo "Linting all PHP files for syntax errors..."
+          find . -type f -name "*.php" -not -path "*/vendor/*" -exec php -l {} +
+
+      - name: Verify Environment Template
+        run: |
+          test -f .env.example || (echo "Missing .env.example!" && exit 1)
+          echo "Environment configuration validated."
+
+  docker-build-and-test:
+    name: Docker Container Build & Integration Test
+    needs: code-quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Copy Environment Configuration
+        run: cp .env.example .env
+
+      - name: Validate Docker Compose Configuration
+        run: docker compose config
+
+      - name: Build and Start Containers
+        run: docker compose up -d --build
+
+      - name: Wait for Containers to be Ready
+        run: |
+          echo "Menunggu container dan PostgreSQL siap..."
+          sleep 10
+          docker compose ps
+
+      - name: Run Database Migrations in Container
+        run: |
+          docker compose exec -T app php artisan migrate
+
+      - name: Test Web Application Response
+        run: |
+          echo "Testing HTTP endpoint response on port 8000..."
+          curl --fail --retry 5 --retry-delay 3 --retry-connrefused http://localhost:8000/ || exit 1
+          echo "Aplikasi berjalan sukses di http://localhost:8000!"
+
+      - name: Check Container Logs
+        if: always()
+        run: docker compose logs --tail=50
+
+      - name: Teardown Containers
+        if: always()
+        run: docker compose down -v
+
+  collaborator-summary:
+    name: Continuous Delivery & Collaborator Readiness
+    needs: [code-quality, docker-build-and-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Summary
+        run: |
+          echo "### 🚀 CI/CD Pipeline Toko Baju Ghani Berhasil!" >> $GITHUB_STEP_SUMMARY
+          echo "- **Stack**: Laravel 10 + Docker + PostgreSQL 15" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status Linting**: PASS (PHP 8.2 Syntax Valid)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status Docker**: PASS (Container Build & DB Migration OK)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Kolaborator**: Siap dikembangkan secara bersama!" >> $GITHUB_STEP_SUMMARY
