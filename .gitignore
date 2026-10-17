@@ -12,5 +12,7 @@ Thumbs.db
 .vscode/
 .idea/
 storage/*.key
+storage/*.sqlite
+*.sqlite
 .phpunit.result.cache
 .phpunit.cache/

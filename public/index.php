@@ -29,18 +29,38 @@ $dbPass = getenv('DB_PASSWORD') ?: 'secret_password';
 $dbConnected = false;
 $dbError = null;
 $pdo = null;
+$dbEngine = 'PostgreSQL';
 
 try {
     $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbName}";
     $pdo = new PDO($dsn, $dbUser, $dbPass, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_TIMEOUT => 3
+        PDO::ATTR_TIMEOUT => 2
     ]);
     $dbConnected = true;
+    $dbEngine = 'PostgreSQL';
+} catch (Exception $e) {
+    try {
+        $sqlitePath = __DIR__ . '/../storage/database.sqlite';
+        $pdo = new PDO("sqlite:" . $sqlitePath, null, null, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]);
+        $dbConnected = true;
+        $dbEngine = 'SQLite (Local Dev)';
+    } catch (Exception $ex) {
+        $dbConnected = false;
+        $dbEngine = 'Offline';
+        $dbError = $e->getMessage();
+    }
+}
+
+if ($dbConnected && $pdo) {
+    $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+    $idCol = ($driver === 'sqlite') ? 'id INTEGER PRIMARY KEY AUTOINCREMENT' : 'id SERIAL PRIMARY KEY';
 
     // Pastikan tabel siap
     $pdo->exec("CREATE TABLE IF NOT EXISTS mahasiswa (
-        id SERIAL PRIMARY KEY,
+        {$idCol},
         nim VARCHAR(20) NOT NULL UNIQUE,
         nama VARCHAR(100) NOT NULL,
         prodi VARCHAR(100) NOT NULL DEFAULT 'Sistem Informasi',
@@ -49,7 +69,7 @@ try {
     );");
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS products (
-        id SERIAL PRIMARY KEY,
+        {$idCol},
         nama_produk VARCHAR(150) NOT NULL,
         kategori VARCHAR(50) NOT NULL DEFAULT 'Kaos',
         harga NUMERIC(12, 2) NOT NULL DEFAULT 0,
@@ -160,10 +180,7 @@ try {
     }
 
     $dataMahasiswa = $pdo->query("SELECT * FROM mahasiswa ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
-
-} catch (Exception $e) {
-    $dbConnected = false;
-    $dbError = $e->getMessage();
+} else {
     $dataProducts = [];
     $dataMahasiswa = [];
 }
@@ -239,9 +256,9 @@ $activeTab = $_GET['tab'] ?? 'toko';
             <!-- Status Indicator & Cart Button -->
             <div class="flex items-center gap-3">
                 <?php if ($dbConnected): ?>
-                    <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        PostgreSQL Connected
+                    <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold <?= $dbEngine === 'PostgreSQL' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' ?>">
+                        <span class="w-2 h-2 rounded-full <?= $dbEngine === 'PostgreSQL' ? 'bg-emerald-500 animate-pulse' : 'bg-cyan-400 animate-pulse' ?>"></span>
+                        <?= htmlspecialchars($dbEngine) ?> Live
                     </span>
                 <?php else: ?>
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
