@@ -1,6 +1,6 @@
-# Script Otomatis Setup & Jalankan Docker Web App (Laravel + PostgreSQL)
+# Script Otomatis Setup dan Jalankan Docker Web App (Laravel + PostgreSQL)
 Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host "  SETUP & RUNNING DOCKER LARAVEL + POSTGRESQL (NO ERROR)  " -ForegroundColor Cyan
+Write-Host "  SETUP DAN RUNNING DOCKER LARAVEL + POSTGRESQL (NO ERROR)  " -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 
 # 1. Cek apakah Docker terpasang dan berjalan
@@ -13,8 +13,13 @@ if (-not $dockerCmd) {
         Start-Process $dockerPath
     } else {
         Write-Host "[!] Docker Desktop belum terinstall di Windows." -ForegroundColor Red
-        Write-Host "[!] Membuka installer Docker Desktop Installer.exe..." -ForegroundColor Yellow
-        Start-Process ".\Docker Desktop Installer.exe"
+        if (Test-Path ".\Docker Desktop Installer.exe") {
+            Write-Host "[*] Membuka installer Docker Desktop Installer.exe lokal..." -ForegroundColor Yellow
+            Start-Process ".\Docker Desktop Installer.exe"
+        } else {
+            Write-Host "[*] Membuka halaman unduh resmi Docker Desktop..." -ForegroundColor Yellow
+            Start-Process "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe"
+        }
         Write-Host "[*] Silakan selesaikan instalasi Docker Desktop, lalu jalankan script ini kembali." -ForegroundColor Green
         exit
     }
@@ -42,10 +47,10 @@ if (-not $dockerReady) {
     exit
 }
 
-Write-Host "[✓] Docker Engine siap!" -ForegroundColor Green
+Write-Host "[v] Docker Engine siap!" -ForegroundColor Green
 
 # 3. Build dan jalankan container
-Write-Host "[2/3] Membangun image & menyalakan container (docker compose up -d --build)..." -ForegroundColor Yellow
+Write-Host "[2/3] Membangun image dan menyalakan container (docker compose up -d --build)..." -ForegroundColor Yellow
 docker compose up -d --build
 
 # 4. Tunggu database PostgreSQL siap dan jalankan migrasi

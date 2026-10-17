@@ -1,5 +1,7 @@
 *.exe
 *.msi
+*.vsix
+*.winmd
 vendor/
 node_modules/
 .env
@@ -11,3 +13,4 @@ Thumbs.db
 .idea/
 storage/*.key
 .phpunit.result.cache
+.phpunit.cache/
