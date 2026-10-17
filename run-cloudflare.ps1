@@ -15,10 +15,22 @@ Write-Host "==========================================================" -Foregro
 Write-Host "   CLOUDFLARE TUNNEL - SAHIR.MY.ID (LOCALHOST:8000)      " -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 
-$cloudflared = ".\cloudflared.exe"
+$scriptDir = $PSScriptRoot
+if (-not $scriptDir) { $scriptDir = "." }
+
+$cloudflared = Join-Path $scriptDir "cloudflared.exe"
+
+# Cek apakah ada di folder subfolder doker & antigravity
 if (-not (Test-Path $cloudflared)) {
-    Write-Host "[*] Mengunduh cloudflared.exe..." -ForegroundColor Yellow
-    curl.exe -L -o "cloudflared.exe" "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe"
+    $altPath = Join-Path $scriptDir "doker & antigravity\cloudflared.exe"
+    if (Test-Path $altPath) {
+        $cloudflared = $altPath
+    }
+}
+
+if (-not (Test-Path $cloudflared)) {
+    Write-Host "[*] Mengunduh cloudflared.exe ke $scriptDir..." -ForegroundColor Yellow
+    curl.exe -L -o $cloudflared "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe"
 }
 
 # 1. Mode Quick Tunnel (Instan tanpa login Cloudflare)
@@ -70,4 +82,3 @@ Write-Host ""
 
 # Jalankan tunnel
 & $cloudflared tunnel run --url http://localhost:8000 $tunnelName
-
